@@ -37,13 +37,15 @@
                 <h2 class="mb-3" style="color: gray;">Invoice</h2>
 
                 @foreach($produk as $itemProduk)
-                @foreach($itemProduk->produk_beli as $produkBeliItem)
+                @php
+                    $produkBeliItem = $itemProduk->produk_beli->firstWhere('order_id', $pembayaran->order_id);
+                @endphp
 
-                <p><b>Invoice</b> : #{{ $produkBeliItem->order_id }}</p>
-                <p><b>Metode Pembayaran</b> : {{ $pembayaran->metode }}</p>
-                <p><b>Tanggal Transaksi</b> : {{ $produkBeliItem->tanggal_transaksi }}</p>
-
-                @endforeach
+                @if($produkBeliItem)
+                    <p><b>Invoice</b> : #{{ $produkBeliItem->order_id }}</p>
+                    <p><b>Metode Pembayaran</b> : {{ $pembayaran->metode }}</p>
+                    <p><b>Tanggal Transaksi</b> : {{ $produkBeliItem->tanggal_transaksi }}</p>
+                @endif
                 @endforeach
             </div>
         </div>
@@ -61,23 +63,23 @@
                         </tr>
                     </thead>
                     <tbody>
-                        @php
-                        $no = 1;
-                        @endphp
+                    @php $no = 1; @endphp
+@foreach($produk as $itemProduk)
+    @php
+        $produkBeliItem = $itemProduk->produk_beli->firstWhere('order_id', $pembayaran->order_id);
+    @endphp
 
-                        @foreach($produk as $itemProduk)
-                        @foreach($itemProduk->produk_beli as $produkBeliItem)
+    @if($produkBeliItem)
+    <tr class="text-center">
+        <td>{{ $no++ }}</td>
+        <td>{{ $itemProduk->nama }}</td>
+        <td>{{ $itemProduk->deskripsi }}</td>
+        <td>{{ $produkBeliItem->qty }}</td>
+        <td>{{ number_format($itemProduk->harga, 0, ',', '.') }}</td>
+    </tr>
+    @endif
+@endforeach
 
-                        <tr class="text-center">
-                            <td>{{ $no++ }}</td>
-                            <td>{{ $itemProduk->nama }}</td>
-                            <td>{{ $itemProduk->deskripsi }}</td>
-                            <td>{{ $produkBeliItem->qty}}</td>
-                            <td>{{ number_format($itemProduk->harga, 0, ',', '.') }}</td>
-                        </tr>
-
-                        @endforeach
-                        @endforeach
                     </tbody>
                 </table>
             </div>

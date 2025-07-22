@@ -14,6 +14,8 @@ use App\Models\User;
 use Illuminate\Auth\Events\PasswordReset;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Str;
+use App\Http\Controllers\XenditController;
+
 
 
 /*
@@ -28,6 +30,9 @@ use Illuminate\Support\Str;
 */
 
 Route::middleware('auth')->group(function () {
+    // Route untuk test invoice Xendit
+    Route::get('/bayar-xendit', [XenditController::class, 'createInvoice'])->middleware('auth');
+
 
     Route::controller(DashboardController::class)->group(function () {
         Route::get('/', 'index')->middleware('prevent.customer');
@@ -46,6 +51,8 @@ Route::middleware('auth')->group(function () {
     });
 
     Route::controller(ProductController::class)->group(function () {
+        Route::get('/produk/{id_produk}', [ProductController::class, 'show'])->name('produk.show');
+        Route::get('/produk/{id_produk}/beli', [XenditController::class, 'createInvoice'])->name('produk.beli');
         Route::get('/produk_terjual', 'produk_terjual')->middleware('prevent.customer');
         Route::get('/beli/{id}', 'beli')->name('beli')->middleware('only.customer');
         Route::post('/proses_checkout', 'proses_checkout');
@@ -61,9 +68,17 @@ Route::middleware('auth')->group(function () {
             Route::get('/metode_pembayaran/{order_id}', 'metode_pembayaran')->name('metode_pembayaran');
         });
     });
+    Route::get('/test', function () {
+        return 'Tes berhasil';
+    });
+    
 
     Route::get('/logout', [AuthController::class, 'logout']);
 });
+Route::get('/produk-search', [\App\Http\Controllers\ProductController::class, 'search'])->name('produk.search');
+
+
+Route::post('/xendit/webhook', [XenditController::class, 'callback']);
 
 Route::middleware('guest')->group(function () {
 

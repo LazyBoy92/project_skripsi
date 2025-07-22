@@ -18,16 +18,16 @@ class BeliProdukModel extends Model
 
     public function produk(): BelongsTo
     {
-        return $this->belongsTo(ProdukModel::class);
-    }
+        return $this->belongsTo(ProdukModel::class, 'produk_id', 'id');    }
 
-    public function users(): BelongsTo
+    public function user(): BelongsTo
     {
-        return $this->belongsTo(User::class);
-    }
+        return $this->belongsTo(User::class, 'user_id', 'id');    }
 
     public function pembayaran(): HasMany
     {
         return $this->hasMany(PembayaranModel::class, 'order_id', 'order_id');
     }
 }
+
+

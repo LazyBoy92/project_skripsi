@@ -8,7 +8,7 @@ use App\Notifications\ResetPasswordNotification;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Laravel\Sanctum\HasApiTokens;
-use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\HasOne;
 
 
 class User extends Authenticatable
@@ -47,10 +47,12 @@ class User extends Authenticatable
         'email_verified_at' => 'datetime',
     ];
 
-    public function customer(): HasMany
-    {
-        return $this->hasMany(CustomerModel::class, 'user_id');
-    }
+   // App\Models\User.php
+public function customer()
+{
+    return $this->hasOne(CustomerModel::class, 'user_id');
+}
+
 
     public function order_details(): HasMany
     {

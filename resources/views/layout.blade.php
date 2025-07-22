@@ -28,15 +28,15 @@
     <link rel="stylesheet" href="{{asset('assets/css/style.css')}}">
     <link rel="stylesheet" href="{{asset('assets/css/components.css')}}">
 
-    <script src="https://app.sandbox.midtrans.com/snap/snap.js" data-client-key="{{config('midtrans.client_key')}}">
-    </script>
+    <script src="https://app.midtrans.com/snap/snap.js" data-client-key="{{ config('midtrans.client_key') }}"></script>
+
 </head>
 
 <body>
 
     <div id="app">
-        <div class="main-wrapper">
-            <div class="navbar-bg"></div>
+        <div class="main-wrapper ">
+            <div class="navbar-bg bg-success"></div>
             <nav class="navbar navbar-expand-lg main-navbar">
                 <form class="form-inline mr-auto">
                     <ul class="navbar-nav mr-3">
@@ -44,7 +44,7 @@
                                     class="fas fa-bars"></i></a></li>
                     </ul>
                 </form>
-                <ul class="navbar-nav navbar-right">
+                <ul class="navbar-nav navbar-right ">
                     <li class="dropdown"><a href="#" data-toggle="dropdown"
                             class="nav-link dropdown-toggle nav-link-lg nav-link-user">
 
@@ -67,7 +67,7 @@
                 <aside id="sidebar-wrapper">
 
                     <div class="sidebar-brand">
-                        <a href="{{url('/')}}">Tokoku</a>
+                        <a href="{{url('/')}}">Toko Busana Darisem</a>
                     </div>
 
                     <div class="sidebar-brand sidebar-brand-sm">
@@ -123,13 +123,7 @@
                                 <span>Ganti Password</span></a>
                         </li>
 
-                        @if(Auth::user()->role_id == 1)
-                        <li class="nav-item @if(Request::path() == 'extract_screenshots') active @endif">
-                            <a href="{{url('extract_screenshots')}}" class="nav-link"><i
-                                    class="bi bi-file-zip-fill pl-3"></i>
-                                <span>Extract Screenshots</span></a>
-                        </li>
-                        @endif
+                        
                     </ul>
                 </aside>
             </div>

@@ -3,208 +3,104 @@
 @section('title', 'Menu Produk')
 
 @section('content')
-
 <div class="container">
-
+    {{-- SweetAlert --}}
     @if($success = Session::get('success'))
-    <script>
-        const Toast = Swal.mixin({
-        toast: true,
-        position: "top-end",
-        showConfirmButton: false,
-        timer: 3000,
-        timerProgressBar: true,
-        didOpen: (toast) => {
-            toast.onmouseenter = Swal.stopTimer;
-            toast.onmouseleave = Swal.resumeTimer;
-        }
-    });
-
-        Toast.fire({
-        icon: "success",
-        title: "{{ $success }}"
-        });
-    </script>
-
+        <script>
+            Swal.fire({
+                toast: true,
+                position: "top-end",
+                icon: "success",
+                title: "{{ $success }}",
+                showConfirmButton: false,
+                timer: 3000
+            });
+        </script>
     @elseif($error = Session::get('error'))
-    <script>
-        const Toast = Swal.mixin({
-        toast: true,
-        position: "top-end",
-        showConfirmButton: false,
-        timer: 3000,
-        timerProgressBar: true,
-        didOpen: (toast) => {
-            toast.onmouseenter = Swal.stopTimer;
-            toast.onmouseleave = Swal.resumeTimer;
-        }
-    });
-
-        Toast.fire({
-        icon: "error",
-        title: "{{ $error }}"
-        });
-    </script>
+        <script>
+            Swal.fire({
+                toast: true,
+                position: "top-end",
+                icon: "error",
+                title: "{{ $error }}",
+                showConfirmButton: false,
+                timer: 3000
+            });
+        </script>
     @endif
 
     <div class="row">
         <div class="col-12">
             <div class="card">
+                <div class="ml-4 mt-3">
+                    <h5 class="text-primary">Menu Produk</h5>
 
-                <div class="ml-4">
-                    <div class="row mt-3">
-                        <div class="col">
-                            <h5 class="text-primary">Menu Produk</h5>
-                        </div>
-                    </div>
+                    {{-- Form Pencarian Produk --}}
+                    <form action="{{ route('produk.search') }}" method="GET" class="my-3 d-flex" style="max-width: 400px;">
+                        <input type="text" name="q" class="form-control me-2" placeholder="Cari produk..." value="{{ request('q') }}">
+                        <button type="submit" class="btn btn-primary">Cari</button>
+                    </form>
 
+                    {{-- Tombol Tambah jika Admin --}}
                     @if (Auth::user()->role_id == 1)
-                    <div class="row mt-3">
-                        <div class="col">
-                            <a href="{{ route('menu_produk.create') }}" class="btn btn-success mb-3"><i
-                                    class="bi bi-plus-circle-fill"></i> Tambah</a>
-                        </div>
-                    </div>
+                        <a href="{{ route('menu_produk.create') }}" class="btn btn-success mb-3 mt-3">
+                            <i class="bi bi-plus-circle-fill"></i> Tambah
+                        </a>
                     @endif
                 </div>
 
-                <div class="card-body">
-                    <div class="table-responsive">
-                        <table class="table table-striped text-center" id="table-1">
-                            <thead>
-                                <tr>
-                                    <th>
-                                        No
-                                    </th>
-                                    <th>Nama</th>
-                                    <th>Deskripsi</th>
-                                    <th>Harga</th>
-                                    <th>Status</th>
-                                    <th>Tanggal Buat</th>
-                                    <th>Tanggal Ubah</th>
-                                    <th>Aksi</th>
-                                </tr>
-                            </thead>
+                {{-- Daftar Produk --}}
+                <div class="container my-4">
+                    <div class="row">
+                        @forelse($produk as $item)
+                            @php
+                                $id_produk = $item->id_produk ?? $item->id;
+                            @endphp
+                            <div class="col-md-4 mb-4">
+                                <div class="card h-100 shadow-sm">
+                                    {{-- Gambar produk --}}
+                                    <img src="{{ asset('assets/produk_images/' . $item->gambar . "/". $item->gambar . ".jpg") }}" 
+                                        class="card-img-top" 
+                                        alt="{{ $item->nama ?? $item->nama_produk }}"
+                                        style="height: 250px; object-fit: cover;">
 
-                            <tbody>
+                                    {{-- Isi card --}}
+                                    <div class="card-body d-flex flex-column">
+                                        <h5 class="card-title">{{ $item->nama_produk ?? $item->nama }}</h5>
+                                        <p class="card-text">{{ \Illuminate\Support\Str::limit($item->deskripsi_produk ?? $item->deskripsi, 100) }}</p>
+                                        <h6 class="text-success mt-auto">Rp {{ number_format($item->harga_produk ?? $item->harga, 0, ',', '.') }}</h6>
+                                    </div>
 
-                                @php
-                                $no = 1;
-                                @endphp
+                                    {{-- Tombol --}}
+                                    <div class="card-footer bg-transparent border-0">
+                                        <div class="d-flex justify-content-center gap-2 flex-wrap">
+                                            <a href="{{ route('produk.show', ['id_produk' => $id_produk]) }}" class="btn btn-sm btn-outline-primary">Lihat</a>
 
-                                @foreach((Auth::user()->role_id == 1 ? $semuaProduk : $produkCustomer) as $item)
-
-                                <tr>
-                                    <td>
-                                        {{ $no++ }}
-                                    </td>
-                                    <td>{{ (Auth::user()->role_id == 1 ? $item->nama : $item->nama_produk) }}</td>
-                                    <td>{{ (Auth::user()->role_id == 1 ? $item->deskripsi : $item->deskripsi_produk) }}
-                                    </td>
-                                    <td>Rp {{ number_format(Auth::user()->role_id == 1 ? $item->harga :
-                                        $item->harga_produk, 0, ',', '.') }}</td>
-                                    <td>
-
-                                        @if(Auth::user()->role_id == 1)
-                                        <span
-                                            class="{{ $item->status == 'tersedia' ? 'badge badge-success' : ($item->status == 'masih dalam pengembangan' ? 'badge badge-warning' : 'badge badge-danger') }}">
-                                            {{ $item->status == 'tersedia' ? ucfirst($item->status) :
-                                            ($item->status == 'masih dalam pengembangan' ? 'Dalam Pengembangan' :
-                                            'Tidak
-                                            Tersedia') }}
-                                        </span>
-
-                                        @else
-                                        <span
-                                            class="{{ $item->status_produk == 'tersedia' ? 'badge badge-success' : ($item->status_produk == 'masih dalam pengembangan' ? 'badge badge-warning' : 'badge badge-danger') }}">
-                                            {{ $item->status_produk == 'tersedia' ? ucfirst($item->status_produk) :
-                                            ($item->status_produk == 'masih dalam pengembangan' ? 'Dalam Pengembangan' :
-                                            'Tidak
-                                            Tersedia') }}
-                                        </span>
-                                        @endif
-                                    </td>
-
-                                    <td>{{ (Auth::user()->role_id == 1 ? $item->created_at : $item->tanggal_buat) }}
-                                    </td>
-                                    <td>{{ (Auth::user()->role_id == 1 ? $item->updated_at : $item->tanggal_ubah) }}
-                                    </td>
-                                    <td>
-                                        @if (Auth::user()->role_id == 1)
-                                        <div class="row">
-                                            <div class="col">
-                                                <a href="{{ route('menu_produk.edit', $item->id) }}"
-                                                    class="btn btn-warning text-white mb-2"><i
-                                                        class="bi bi-pen-fill"></i>
-                                                    Update</a>
-                                            </div>
-                                        </div>
-
-                                        <div class="row mt-1 mb-1">
-                                            <div class="col">
-                                                <form action="{{ route('menu_produk.destroy', $item->id) }}"
-                                                    method="post">
+                                            @if (Auth::user()->role_id == 1)
+                                                <form action="{{ route('menu_produk.destroy', $id_produk) }}" method="POST"
+                                                    onsubmit="return confirm('Yakin ingin menghapus {{ $item->nama_produk ?? $item->nama }} ?')">
                                                     @csrf
                                                     @method('DELETE')
-                                                    <button type="submit" class="btn btn-danger mb-2"
-                                                        onclick="return confirm('Apakah Anda yakin ingin menghapus produk ini?')"><i
-                                                            class="bi bi-trash-fill"></i> Delete</button>
+                                                    <button type="submit" class="btn btn-sm btn-outline-danger">Hapus</button>
                                                 </form>
-                                            </div>
-                                        </div>
-
-                                        <div class="row">
-                                            <div class="col">
-                                                <a href="{{ route('menu_produk.show', $item->id) }}"
-                                                    class="btn btn-info text-white mb-2"><i class="bi bi-eye-fill"></i>
-                                                    Lihat</a>
-                                            </div>
-                                        </div>
-
-                                        @else
-                                        <div class="row">
-
-                                            @if($item->status_beli == 'pending' || $item->status_beli == 'deny')
-                                            <div class="col">
-                                                <a href="{{ route('metode_pembayaran', $item->order_id) }}"
-                                                    class="btn btn-danger"><i
-                                                        class="bi bi-credit-card-fill mx-1"></i>Selesaikan
-                                                    Pembayaran
-                                                </a>
-                                            </div>
-
-                                            @elseif($item->status_beli != 'success')
-                                            <div class="col">
-                                                <a href="{{ route('beli', $item->id_produk) }}"
-                                                    class="btn btn-primary text-white mb-2"><i
-                                                        class="bi bi-bag-fill"></i>
-                                                    Beli</a>
-
-                                                <a href="{{ route('menu_produk.show', $item->id_produk) }}"
-                                                    class="btn btn-info text-white mb-2"><i class="bi bi-eye-fill"></i>
-                                                    Lihat</a>
-                                            </div>
                                             @endif
 
-                                            @if($item->status_beli == 'success')
-                                            <div class="col">
-                                                <a href="{{ route('download_produk', $item->id_produk) }}"
-                                                    class="btn btn-success text-white"><i class="bi bi-download"></i>
-                                                    Unduh</a>
-                                            </div>
-                                            @endif
+                                            <a href="{{ route('produk.beli', ['id_produk' => $id_produk]) }}" class="btn btn-sm btn-outline-success">Bayar</a>
                                         </div>
-                                        @endif
-                                    </td>
-                                </tr>
-                                @endforeach
-                            </tbody>
-                        </table>
+                                    </div>
+
+                                </div>
+                            </div>
+                        @empty
+                            <div class="col-12 text-center">
+                                <p class="text-muted">Produk tidak ditemukan.</p>
+                            </div>
+                        @endforelse
                     </div>
                 </div>
+
             </div>
         </div>
     </div>
 </div>
-
 @endsection

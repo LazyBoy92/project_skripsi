@@ -12,6 +12,8 @@ class ProdukModel extends Model
 
     protected $table = "tbl_produk";
     protected $guarded = [];
+ 
+
 
     public function produk_terjual(): HasMany
     {

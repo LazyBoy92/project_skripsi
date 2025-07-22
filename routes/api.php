@@ -19,4 +19,6 @@ Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
     return $request->user();
 });
 
-Route::post('/callback', [MidtransController::class, 'callback']);
+Route::post('/xendit/webhook', [\App\Http\Controllers\XenditController::class, 'callback']);
+
+// Route::post('/callback', [MidtransController::class, 'callback']);
