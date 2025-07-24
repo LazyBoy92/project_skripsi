@@ -20,6 +20,11 @@ class CheckIdCustomer
         $profileId = (int) $request->route('id');
 
         if ($user->id !== $profileId || Auth::user()->role_id == 1) {
+            \Log::info('Middleware CheckIdCustomer', [
+                'user_id' => $user->id ?? null,
+                'route_id' => $request->route('id'),
+                'role_id' => $user->role_id ?? null,
+            ]);            
             abort(403, 'Forbidden access.');
         }
         return $next($request);

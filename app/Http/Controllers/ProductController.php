@@ -22,9 +22,6 @@ class ProductController extends Controller
         'harga.required' => 'Harga tidak boleh kosong.',
         'harga.numeric' => 'Inputan harga harus berupa angka.',
         'harga.max_digits' => 'Nominal harga tidak boleh lebih dari 10 digit.',
-        'file.required' => 'File zip harus di upload.',
-        'file.extensions' => 'File yang Anda upload tidak valid.',
-        'file.mimetypes' => 'File yang Anda upload tidak valid.'
     ];
 
     protected function setSessionFlash($detectMessage, $message)
@@ -92,17 +89,56 @@ class ProductController extends Controller
             return redirect('/menu_produk');
         }
     }
-    
 
-    public function detailProduk($id)
-    {
-        $produk = ProdukModel::findOrFail($id);
-        $screenshots = DB::table('tbl_screenshots_produk')
-            ->where('produk_id', $id)
+    public function search(Request $request)
+{
+    $q = $request->input('q');
+    $user_id = session('id');
+    $user = User::find($user_id);
+
+    if ($user->role_id == 1) {
+        // Admin: tampilkan semua produk yang cocok
+        $produk = ProdukModel::where('nama', 'like', "%{$q}%")
+            ->orWhere('deskripsi', 'like', "%{$q}%")
             ->get();
-
-        return view('produk.detail', compact('produk', 'screenshots'));
+    } else {
+        // Customer: hanya produk yang dibeli user atau tampil sesuai role
+        $produk = ProdukModel::select(
+            'tbl_produk.id AS id_produk',
+            'tbl_produk.nama AS nama_produk',
+            'tbl_produk.gambar AS gambar',
+            'tbl_produk.deskripsi AS deskripsi_produk',
+            'tbl_produk.harga AS harga_produk',
+            'tbl_produk.status AS status_produk',
+            'tbl_produk.created_at AS tanggal_buat',
+            'tbl_produk.updated_at AS tanggal_ubah'
+        )
+        ->where(function ($query) use ($q) {
+            $query->where('tbl_produk.nama', 'like', "%{$q}%")
+                  ->orWhere('tbl_produk.deskripsi', 'like', "%{$q}%");
+        })
+        ->leftJoin('tbl_beli_produk', function ($join) use ($user_id) {
+            $join->on('tbl_produk.id', '=', 'tbl_beli_produk.produk_id')
+                 ->where('tbl_beli_produk.user_id', '=', $user_id);
+        })
+        ->distinct()
+        ->get();
     }
 
-    // ... (sisa fungsi lain tetap sama)
+    return view('produk.index', compact('produk'));
+}
+
+
+    
+
+    // public function detailProduk($id)
+    // {
+    //     $produk = ProdukModel::findOrFail($id);
+    //     $screenshots = DB::table('tbl_screenshots_produk')
+    //         ->where('produk_id', $id)
+    //         ->get();
+
+    //     return view('produk.detail', compact('produk', 'screenshots'));
+    // }
+
 }

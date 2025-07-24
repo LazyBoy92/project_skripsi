@@ -7,6 +7,7 @@ use App\Http\Controllers\CustomerController;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\PengaturanController;
 use App\Http\Controllers\PembayaranController;
+use App\Http\Controllers\XenditController;
 use App\Http\Middleware\OnlyCustomer;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Password;
@@ -14,97 +15,80 @@ use App\Models\User;
 use Illuminate\Auth\Events\PasswordReset;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Str;
-use App\Http\Controllers\XenditController;
-
-
-
-/*
-|--------------------------------------------------------------------------
-| Web Routes
-|--------------------------------------------------------------------------
-|
-| Here is where you can register web routes for your application. These
-| routes are loaded by the RouteServiceProvider and all of them will
-| be assigned to the "web" middleware group. Make something great!
-|
-*/
 
 Route::middleware('auth')->group(function () {
-    // Route untuk test invoice Xendit
-    Route::get('/bayar-xendit', [XenditController::class, 'createInvoice'])->middleware('auth');
+    // Dashboard
+    Route::get('/', [DashboardController::class, 'index'])->middleware('prevent.customer');
 
+    // Produk
+    Route::resource('menu_produk', ProductController::class)->middleware('prevent.customer');
+    Route::get('/produk/{id_produk}', [ProductController::class, 'show'])->name('produk.show');
+    Route::get('/produk/{id_produk}/beli', [XenditController::class, 'createInvoice'])->name('produk.beli');
+    Route::post('/produk/{id}/beli', [XenditController::class, 'createInvoice'])->name('produk.beli');
+    Route::get('/produk_terjual', [ProductController::class, 'produk_terjual'])->middleware('prevent.customer');
+    Route::get('/beli/{id}', [ProductController::class, 'beli'])->name('beli')->middleware('only.customer');
+    Route::post('/proses_checkout', [ProductController::class, 'proses_checkout']);
+    Route::get('/download_produk/{id_produk}', [ProductController::class, 'download_produk'])->name('download_produk')->middleware('reset.headers');
+    Route::get('/produk-search', [ProductController::class, 'search'])->name('produk.search');
 
-    Route::controller(DashboardController::class)->group(function () {
-        Route::get('/', 'index')->middleware('prevent.customer');
+    // Customer
+    Route::get('/profile_customer/{id}', [CustomerController::class, 'index'])->middleware('check.id.customer');
+    Route::post('/update_profile', [CustomerController::class, 'update_profile']);
+
+    // Pengaturan
+    Route::get('/ganti_password', [PengaturanController::class, 'index']);
+    Route::post('/proses_ganti_password', [PengaturanController::class, 'proses_ganti_password']);
+    Route::get('/extract_screenshots', [PengaturanController::class, 'extract_screenshots'])->middleware('prevent.customer');
+    Route::post('/proses_extract_screenshots', [PengaturanController::class, 'proses_extract_screenshots'])->middleware('prevent.customer');
+
+    // Pembayaran
+    Route::middleware([OnlyCustomer::class])->group(function () {
+        Route::get('/download_bukti_pembayaran/{order_id}', [PembayaranController::class, 'download_bukti_pembayaran'])->name('download_bukti_pembayaran');
+        Route::get('/bukti_pembayaran', [PembayaranController::class, 'index']);
+        Route::get('/metode_pembayaran/{order_id}', [PembayaranController::class, 'metode_pembayaran'])->name('metode_pembayaran');
     });
 
-    Route::controller(CustomerController::class)->group(function () {
-        Route::get('/profile_customer/{id}', 'index')->middleware('check.id.customer');
-        Route::post('/update_profile', 'update_profile');
-    });
+    // Xendit Test
+    Route::get('/bayar-xendit', [XenditController::class, 'createInvoice']);
 
-    Route::controller(PengaturanController::class)->group(function () {
-        Route::get('/ganti_password', 'index');
-        Route::post('/proses_ganti_password', 'proses_ganti_password');
-        Route::get('/extract_screenshots', 'extract_screenshots')->middleware('prevent.customer');
-        Route::post('/proses_extract_screenshots', 'proses_extract_screenshots')->middleware('prevent.customer');
-    });
+    // Logout
+    Route::get('/logout', [AuthController::class, 'logout']);
 
-    Route::controller(ProductController::class)->group(function () {
-        Route::get('/produk/{id_produk}', [ProductController::class, 'show'])->name('produk.show');
-        Route::get('/produk/{id_produk}/beli', [XenditController::class, 'createInvoice'])->name('produk.beli');
-        Route::get('/produk_terjual', 'produk_terjual')->middleware('prevent.customer');
-        Route::get('/beli/{id}', 'beli')->name('beli')->middleware('only.customer');
-        Route::post('/proses_checkout', 'proses_checkout');
-        Route::get('/download_produk/{id_produk}', 'download_produk')->name('download_produk')->middleware('reset.headers');
-    });
-
-    Route::resource('menu_produk', ProductController::class);
-
-    Route::controller(PembayaranController::class)->group(function () {
-        Route::middleware([OnlyCustomer::class])->group(function () {
-            Route::get('/download_bukti_pembayaran/{order_id}', 'download_bukti_pembayaran')->name('download_bukti_pembayaran');
-            Route::get('/bukti_pembayaran', 'index');
-            Route::get('/metode_pembayaran/{order_id}', 'metode_pembayaran')->name('metode_pembayaran');
-        });
-    });
+    // Test
     Route::get('/test', function () {
         return 'Tes berhasil';
     });
-    
-
-    Route::get('/logout', [AuthController::class, 'logout']);
 });
-Route::get('/produk-search', [\App\Http\Controllers\ProductController::class, 'search'])->name('produk.search');
 
-
+// Webhook Xendit
 Route::post('/xendit/webhook', [XenditController::class, 'callback']);
 
+// Guest routes
 Route::middleware('guest')->group(function () {
+    Route::get('/login', [AuthController::class, 'index'])->name('login');
+    Route::get('/pendaftaran', [AuthController::class, 'pendaftaran']);
+    Route::get('/redirect', [AuthController::class, 'redirect']);
+    Route::get('/auth/google/callback', [AuthController::class, 'callback']);
+
+    Route::post('/proses_login', [AuthController::class, 'proses_login'])->middleware('throttle:limit_login');
+    Route::post('/proses_pendaftaran', [AuthController::class, 'proses_pendaftaran']);
+    Route::post('/proses_lupa_password', [AuthController::class, 'proses_lupa_password']);
 
     Route::get('/lupa_password', function () {
         return view('auth.lupa_password');
     })->name('password.request');
 
     Route::post('/lupa_password', function (Request $request) {
-
-        function statusFunction($status)
-        {
-            return $status;
-        }
-
         $request->validate(['email' => 'required|email'], [
             'email.required' => 'Email harus diisi.',
             'email.email' => 'Email tidak valid.'
         ]);
 
-        $status = Password::sendResetLink(
-            $request->only('email')
-        );
+        $status = Password::sendResetLink($request->only('email'));
 
         return $status === Password::RESET_LINK_SENT
-            ? back()->with(['status' => __(statusFunction('Link reset password telah berhasil dikirim melalui email. Silakan periksa email Anda.'))])
-            : back()->withErrors(['email' => __(statusFunction('Email tidak ada.'))]);
+            ? back()->with(['status' => 'Link reset password telah berhasil dikirim melalui email. Silakan periksa email Anda.'])
+            : back()->withErrors(['email' => 'Email tidak ada.']);
     })->name('password.email');
 
     Route::get('/reset_password/{token}', function (string $token) {
@@ -141,17 +125,4 @@ Route::middleware('guest')->group(function () {
             ? redirect()->route('login')->with('status', __($status))
             : back()->withErrors(['email' => [__($status)]]);
     })->name('password.update');
-
-    Route::controller(AuthController::class)->group(function () {
-        Route::get('/login', 'index')->name('login');
-        Route::get('/pendaftaran', 'pendaftaran');
-        Route::get('/redirect', 'redirect');
-        Route::get('/auth/google/callback', 'callback');
-
-        Route::post('/proses_login', 'proses_login')->middleware('throttle:limit_login');
-        Route::post('/proses_pendaftaran', 'proses_pendaftaran');
-        Route::post('/proses_lupa_password', 'proses_lupa_password');
-    });
 });
-
-Route::resource('menu_produk', ProductController::class, ['except' => ['index', 'show']])->middleware('prevent.customer');

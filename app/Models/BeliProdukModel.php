@@ -24,10 +24,11 @@ class BeliProdukModel extends Model
     {
         return $this->belongsTo(User::class, 'user_id', 'id');    }
 
-    public function pembayaran(): HasMany
-    {
-        return $this->hasMany(PembayaranModel::class, 'order_id', 'order_id');
-    }
+        public function pembayaran()
+        {
+            return $this->hasOne(PembayaranModel::class, 'order_id', 'order_id');
+        }
+        
 }
 
 

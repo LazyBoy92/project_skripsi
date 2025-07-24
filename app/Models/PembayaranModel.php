@@ -11,12 +11,14 @@ class PembayaranModel extends Model
     use HasFactory;
 
     protected $table = 'tbl_pembayaran';
-    protected $guarded = [];
 
-    public $timestamps = false;
+protected $fillable = [
+    'order_id', 'user_id', 'total', 'paid_at', 'metode'
+];
 
-    public function beli_produk(): BelongsTo
-    {
-        return $this->belongsTo(BeliProdukModel::class, 'order_id', 'order_id');
-    }
+public function beli_produk()
+{
+    return $this->belongsTo(BeliProdukModel::class, 'order_id', 'order_id');
+}
+
 }

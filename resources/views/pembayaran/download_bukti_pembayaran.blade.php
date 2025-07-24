@@ -22,7 +22,7 @@
 
         <div class="row">
             <div class="col">
-                <h4 class="text-center">{{ $user->name }}</h4>
+                <h4 class="text-center"></h4>
             </div>
         </div>
 
@@ -34,7 +34,7 @@
 
         <div class="row">
             <div class="col mb-3">
-                <h2 class="mb-3" style="color: gray;">Invoice</h2>
+                <h2 class="mb-3" style="color: gray;">Toko Busana Darisem</h2>
 
                 @foreach($produk as $itemProduk)
                 @php
@@ -42,9 +42,10 @@
                 @endphp
 
                 @if($produkBeliItem)
-                    <p><b>Invoice</b> : #{{ $produkBeliItem->order_id }}</p>
-                    <p><b>Metode Pembayaran</b> : {{ $pembayaran->metode }}</p>
-                    <p><b>Tanggal Transaksi</b> : {{ $produkBeliItem->tanggal_transaksi }}</p>
+                <p>Nama : {{ $user->name }}</p>
+                <p><strong>Tanggal Transaksi:</strong> {{ \Carbon\Carbon::parse($pembayaran->paid_at)->format('d F Y') }}</p>
+                <p><strong>Penjual:</strong> Darisem (083846449309)</p>
+
                 @endif
                 @endforeach
             </div>
@@ -59,7 +60,7 @@
                             <th>Produk</th>
                             <th>Deskripsi</th>
                             <th>Qty</th>
-                            <th>Harga</th>
+                            <th>Total Harga</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -75,7 +76,7 @@
         <td>{{ $itemProduk->nama }}</td>
         <td>{{ $itemProduk->deskripsi }}</td>
         <td>{{ $produkBeliItem->qty }}</td>
-        <td>{{ number_format($itemProduk->harga, 0, ',', '.') }}</td>
+        <td>{{ number_format($pembayaran->total, 0, ',', '.') }}</td>
     </tr>
     @endif
 @endforeach

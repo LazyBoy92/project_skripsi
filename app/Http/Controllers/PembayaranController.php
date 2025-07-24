@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\BeliProdukModel;
+use App\Models\PembayaranModel;
 use App\Models\ProdukModel;
 use App\Models\User;
 use Barryvdh\DomPDF\Facade\Pdf;
@@ -48,8 +49,10 @@ class PembayaranController extends Controller
         $id = session('id');
         $user = User::find($id);
 
-        $pembayaran = BeliProdukModel::where('order_id', $order_id)->first();
+        
 
+        $pembayaran = PembayaranModel::where('order_id', $order_id)->first();
+        
         if (!$pembayaran) {
             return back()->with('error', 'Data pembayaran tidak ditemukan.');
         }

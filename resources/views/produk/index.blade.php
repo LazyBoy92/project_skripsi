@@ -36,10 +36,26 @@
                     <h5 class="text-primary">Menu Produk</h5>
 
                     {{-- Form Pencarian Produk --}}
-                    <form action="{{ route('produk.search') }}" method="GET" class="my-3 d-flex" style="max-width: 400px;">
-                        <input type="text" name="q" class="form-control me-2" placeholder="Cari produk..." value="{{ request('q') }}">
-                        <button type="submit" class="btn btn-primary">Cari</button>
+                    <form action="{{ route('produk.search') }}" method="GET" class="form-inline mb-3">
+                        <input type="text" name="q" class="form-control mr-2" placeholder="Cari produk..." value="{{ request('q') }}">
+                             <button type="submit" class="btn btn-primary">Cari</button>
                     </form>
+
+                    {{-- Tampilkan hasil pencarian jika ada --}}
+@if(request()->has('q') && request()->q != '')
+    <div class="alert alert-info">
+        Menampilkan hasil pencarian untuk: <strong>{{ request()->q }}</strong>
+    </div>
+
+    @if($produk->isEmpty())
+        <div class="alert alert-warning">
+            Tidak ditemukan produk yang cocok dengan kata kunci <strong>{{ request()->q }}</strong>.
+        </div>
+    @endif
+@endif
+
+
+
 
                     {{-- Tombol Tambah jika Admin --}}
                     @if (Auth::user()->role_id == 1)
@@ -85,7 +101,7 @@
                                                 </form>
                                             @endif
 
-                                            <a href="{{ route('produk.beli', ['id_produk' => $id_produk]) }}" class="btn btn-sm btn-outline-success">Bayar</a>
+                                            <a href="{{ route('produk.beli', ['id' => $id_produk]) }}" class="btn btn-sm btn-outline-success">Bayar</a>
                                         </div>
                                     </div>
 

@@ -17,7 +17,7 @@ class PreventCustomer
     public function handle(Request $request, Closure $next): Response
     {
         if (Auth::user()->role_id != 1) {
-            abort(403, 'Forbidden access.');
+            // abort(403, 'Forbidden access.');
         }
         return $next($request);
     }

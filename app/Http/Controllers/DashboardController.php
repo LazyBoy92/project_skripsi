@@ -26,14 +26,14 @@ class DashboardController extends Controller
 
     protected function getTotalOrderHariIni($hari_ini)
     {
-        $total = BeliProdukModel::where('tanggal_transaksi', $hari_ini)->count();
+        $total = BeliProdukModel::where('paid_at', $hari_ini)->count();
         return $total;
     }
 
     protected function getTotalPenjualanHariIni($hari_ini)
     {
         $totalCollection = BeliProdukModel::withSum(['pembayaran' => function ($query) use ($hari_ini) {
-            $query->whereDate('tanggal_transaksi', $hari_ini);
+            $query->whereDate('paid_at', $hari_ini);
         }], 'total')->get();
 
         // Mengambil jumlah total dari koleksi
@@ -46,7 +46,7 @@ class DashboardController extends Controller
     protected function getTotalBarangTerjualHariIni($hari_ini)
     {
         $qty = BeliProdukModel::where('status', 'success')
-            ->whereDate('tanggal_transaksi', $hari_ini)
+            ->whereDate('paid_at', $hari_ini)
             ->sum('qty');
 
         return $qty;
@@ -55,7 +55,7 @@ class DashboardController extends Controller
     protected function getNamaOrderHariIni($hari_ini)
     {
         $orders = User::withWhereHas('order_details', function ($query) use ($hari_ini) {
-            $query->whereDate('tanggal_transaksi', $hari_ini);
+            $query->whereDate('paid_at', $hari_ini);
         })->get();
 
         return $orders;

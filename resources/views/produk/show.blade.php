@@ -21,30 +21,30 @@
 
             <p class="mt-3">{{ $produk->deskripsi }}</p>
 
-            <!-- Pilihan Warna -->
-            <div class="mb-3">
-                <label class="font-weight-bold">Pilih Warna:</label><br>
-                @foreach(['Hitam', 'Merah', 'Kuning', 'Hijau'] as $warna)
-                    <button class="btn btn-outline-secondary btn-sm m-1">{{ $warna }}</button>
-                @endforeach
-            </div>
 
-            <!-- Pilihan Ukuran -->
-            <div class="mb-3">
-                <label class="font-weight-bold">Pilih Ukuran:</label><br>
-                @foreach(['S', 'M', 'L'] as $ukuran)
-                    <button class="btn btn-outline-secondary btn-sm m-1">{{ $ukuran }}</button>
-                @endforeach
-            </div>
+         
 
             <!-- Kuantitas dan Tombol Beli -->
-            <div class="d-flex mb-3">
-                <button class="btn btn-outline-secondary">-</button>
-                <input type="text" class="form-control mx-2 text-center" style="width: 60px;" value="1">
-                <button class="btn btn-outline-secondary">+</button>
-            </div>
+            <form action="{{ route('produk.beli', $produk->id) }}" method="POST">
+                @csrf
+                <div class="mb-3">
+                    <label class="font-weight-bold">Jumlah:</label><br>
+                    <input type="number" name="qty" value="1" min="1" class="form-control w-25" required>
+                </div>
+                <button type="submit" class="btn btn-success btn-block">Bayar</button>
+            </form>
 
-            <button class="btn btn-success btn-block">Beli</button>
+
+            <script>
+                 function changeQty(amount) {
+                    let input = document.getElementById('qtyInput');
+                    let value = parseInt(input.value) || 1;
+                     value = Math.max(1, value + amount); // qty minimal 1
+                    input.value = value;
+                }
+            </script>
+
+
             <a href="{{ url('/menu_produk') }}" class="btn btn-danger btn-block mt-2">Kembali</a>
         </div>
     </div>
