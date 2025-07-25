@@ -128,17 +128,18 @@ class ProductController extends Controller
     return view('produk.index', compact('produk'));
 }
 
+public function produk_terjual()
+{
+    $produkTerjual = \App\Models\ProdukModel::withSum(['produk_beli as total_terjual' => function ($query) {
+        $query->where('status', 'success');
+    }], 'qty')->get();
+    
+
+        return view('produk.produk_terjual', ['produk' => $produkTerjual]);
+}
+
 
     
 
-    // public function detailProduk($id)
-    // {
-    //     $produk = ProdukModel::findOrFail($id);
-    //     $screenshots = DB::table('tbl_screenshots_produk')
-    //         ->where('produk_id', $id)
-    //         ->get();
-
-    //     return view('produk.detail', compact('produk', 'screenshots'));
-    // }
 
 }

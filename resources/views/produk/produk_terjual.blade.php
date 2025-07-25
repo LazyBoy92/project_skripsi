@@ -37,14 +37,12 @@
                                 @php $no = 1; @endphp
                                 @foreach ($produk as $item)
                                 <tr class="text-center">
-
-                                    <td>{{ $no++ }}</td>
-                                    <td>{{ $item->nama }}</td>
-                                    <td>{{ $item->deskripsi }}</td>
-                                    <td>{{ $item->produk_terjual_sum_jumlah_terjual }}</td>
-
-                                </tr>
-                                @endforeach
+                                <td>{{ $no++ }}</td>
+                                <td>{{ $item->nama }}</td>
+                                <td>{{ $item->deskripsi }}</td>
+                                <td>{{ $item->total_terjual ?? 0 }}</td>
+</tr>
+@endforeach
                             </tbody>
                         </table>
                     </div>
