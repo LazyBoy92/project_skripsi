@@ -22,6 +22,7 @@ Route::middleware('auth')->group(function () {
 
     // Produk
     Route::resource('menu_produk', ProductController::class)->middleware('prevent.customer');
+    Route::get('/produk', [ProductController::class, 'index']);
     Route::get('/produk/{id_produk}', [ProductController::class, 'show'])->name('produk.show');
     Route::get('/produk/{id_produk}/beli', [XenditController::class, 'createInvoice'])->name('produk.beli');
     Route::post('/produk/{id}/beli', [XenditController::class, 'createInvoice'])->name('produk.beli');
@@ -30,6 +31,8 @@ Route::middleware('auth')->group(function () {
     Route::post('/proses_checkout', [ProductController::class, 'proses_checkout']);
     Route::get('/download_produk/{id_produk}', [ProductController::class, 'download_produk'])->name('download_produk')->middleware('reset.headers');
     Route::get('/produk-search', [ProductController::class, 'search'])->name('produk.search');
+    Route::get('/menu_produk/{id}/edit', [ProductController::class, 'edit'])->name('menu_produk.edit');
+    Route::put('/menu_produk/{id}', [ProductController::class, 'update'])->name('menu_produk.update');
 
     // Customer
     Route::get('/profile_customer/{id}', [CustomerController::class, 'index'])->middleware('check.id.customer');

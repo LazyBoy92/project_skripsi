@@ -81,6 +81,12 @@
                                         name="deskripsi" autocomplete="off" value="{{old('deskripsi')}}">
                                 </div>
 
+                                <div class="form-group mr-3">
+                                    <label for="deskripsi">Nama File Gambar</label>
+                                    <input type="text" class="form-control border border-primary" id="gambar"
+                                        name="gambar" autocomplete="off" value="{{old('gambar')}}">
+                                </div>
+
                                 @if ($errors->has('deskripsi'))
                                 <p class="mt-3" style="font-size: 15px; color:red;"><i
                                         class="bi bi-exclamation-octagon-fill"></i>
@@ -127,15 +133,6 @@
                                 </p>
                                 @endif
 
-                                <div class="form-group mr-3">
-                                    <label for="file">Upload file ZIP</label>
-                                    <div class="custom-file">
-                                        <input type="file" class="custom-file-input" name="file" id="file"
-                                            value="{{old('file')}}">
-                                        <label class="custom-file-label border border-primary">Choose
-                                            file...</label>
-                                    </div>
-                                </div>
 
                                 @if ($errors->has('file'))
                                 <p class="mt-3" style="font-size: 15px; color:red;"><i

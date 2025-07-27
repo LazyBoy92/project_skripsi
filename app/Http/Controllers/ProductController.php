@@ -65,7 +65,7 @@ class ProductController extends Controller
         $produkScreenshots = ScreenshotsProdukModel::where('produk_id', $id_produk)->first();
     
         if ($produkScreenshots) {
-            $folderExtract = $produkScreenshots->folder;
+            $folderExtract = basename($produkScreenshots->folder);
             $directory = public_path('assets/produk_images/' . $folderExtract);
             $ImagesArray = [];
             $file_display = ['jpg', 'jpeg', 'png'];
@@ -138,8 +138,73 @@ public function produk_terjual()
         return view('produk.produk_terjual', ['produk' => $produkTerjual]);
 }
 
+public function create()
+{
+    return view('produk.create');
+}
+
+
+
+public function store(Request $request)
+{
+    
+    $request->validate([
+        'nama' => 'required|string|max:255',
+        'deskripsi' => 'nullable|string',
+        'harga' => 'required|numeric|min:0',
+        'gambar' => 'nullable|string|max:255',
+    ]);
 
     
+    ProdukModel::create([
+        'nama' => $request->nama,
+        'deskripsi' => $request->deskripsi,
+        'harga' => $request->harga,
+        'gambar'=> $request->gambar,
+    ]);
+
+    return redirect('/produk')->with('success', 'Produk berhasil ditambahkan.');
+}
+
+
+public function destroy($id)
+{
+    $produk = ProdukModel::findOrFail($id);
+    $produk->delete();
+
+    return redirect()->back()->with('success', 'Produk berhasil dihapus.');
+}
+   
+
+
+public function edit($id)
+{
+    $produk = ProdukModel::findOrFail($id);
+    return view('produk.edit', compact('produk'));
+}
+
+public function update(Request $request, $id)
+{
+    $request->validate([
+        'nama' => 'required|string|max:255',
+        'deskripsi' => 'required|string',
+        'harga' => 'required|numeric',
+        'status' => 'required|string',
+        'gambar' => 'nullable|string|max:255',
+    ]);
+
+    $produk = ProdukModel::findOrFail($id);
+    $produk->update([
+        'nama' => $request->nama,
+        'deskripsi' => $request->deskripsi,
+        'harga' => $request->harga,
+        'status' => $request->status,
+        'gambar' => $request->gambar,
+    ]);
+
+    return redirect()->route('menu_produk.index')->with('success', 'Produk berhasil diperbarui');
+}
+
 
 
 }

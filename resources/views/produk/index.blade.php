@@ -99,6 +99,8 @@
                                                     @method('DELETE')
                                                     <button type="submit" class="btn btn-sm btn-outline-danger">Hapus</button>
                                                 </form>
+                                                <a href="{{ route('menu_produk.edit', $item->id) }}" class="btn btn-warning btn-sm">Edit</a>
+
                                             @endif
 
                                             <a href="{{ route('produk.beli', ['id' => $id_produk]) }}" class="btn btn-sm btn-outline-success">Bayar</a>
