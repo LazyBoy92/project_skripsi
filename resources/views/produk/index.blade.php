@@ -75,10 +75,28 @@
                             <div class="col-md-4 mb-4">
                                 <div class="card h-100 shadow-sm">
                                     {{-- Gambar produk --}}
-                                    <img src="{{ asset('assets/produk_images/' . $item->gambar . "/". $item->gambar . ".jpg") }}" 
-                                        class="card-img-top" 
+
+                                    @php
+                                        $folderPath = public_path('assets/produk_images/' . $item->gambar);
+                                        $gambarPath = asset('default.png');
+
+                                        if (is_dir($folderPath)) {
+                                            $files = scandir($folderPath);
+                                            foreach ($files as $file) {
+                                                if (preg_match('/^' . preg_quote($item->gambar, '/') . '\.(jpg|jpeg|png)$/i', $file)) {
+                                                    $gambarPath = asset('assets/produk_images/' . $item->gambar . '/' . $file);
+                                                    break;
+                                                }
+                                            }
+                                        }
+                                    @endphp
+
+
+                                    <img src="{{ $gambarPath ?? asset('default.png') }}"
+                                        class="card-img-top"
                                         alt="{{ $item->nama ?? $item->nama_produk }}"
                                         style="height: 250px; object-fit: cover;">
+
 
                                     {{-- Isi card --}}
                                     <div class="card-body d-flex flex-column">

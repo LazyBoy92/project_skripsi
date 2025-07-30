@@ -82,10 +82,10 @@
                                 </div>
 
                                 <div class="form-group mr-3">
-                                    <label for="deskripsi">Nama File Gambar</label>
-                                    <input type="text" class="form-control border border-primary" id="gambar"
-                                        name="gambar" autocomplete="off" value="{{old('gambar')}}">
+                                <label for="gambar">Upload Gambar</label>
+                                <input type="file" class="form-control border border-primary" id="gambar" name="gambar" accept=".jpg,.jpeg,.png">
                                 </div>
+
 
                                 @if ($errors->has('deskripsi'))
                                 <p class="mt-3" style="font-size: 15px; color:red;"><i

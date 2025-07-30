@@ -5,7 +5,7 @@
 @section('content')
 <div class="container mt-5">
     <h3>Edit Produk</h3>
-    <form method="POST" action="{{ route('menu_produk.update', $produk->id) }}">
+<form method="POST" action="{{ route('menu_produk.update', $produk->id) }}" enctype="multipart/form-data">
         @csrf
         @method('PUT')
 
@@ -34,9 +34,10 @@
         </div>
 
         <div class="form-group">
-            <label>Nama File Gambar</label>
-            <input type="text" name="gambar" value="{{ $produk->gambar }}" class="form-control">
+            <label for="gambar">Upload Gambar Baru </label>
+             <input type="file" class="form-control" name="gambar" id="gambar" accept=".jpg,.jpeg,.png">
         </div>
+
 
         <button type="submit" class="btn btn-primary">Update Produk</button>
         <a href="{{ route('menu_produk.index') }}" class="btn btn-secondary">Kembali</a>

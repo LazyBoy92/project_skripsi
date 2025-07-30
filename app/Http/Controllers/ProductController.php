@@ -3,6 +3,8 @@
 namespace App\Http\Controllers;
 
 use App\Models\CustomerModel;
+use Illuminate\Support\Str;
+use Illuminate\Support\Facades\File;
 use Illuminate\Http\Request;
 use App\Models\ProdukModel;
 use App\Models\User;
@@ -55,6 +57,9 @@ class ProductController extends Controller
             ->distinct()
             ->get();
 
+           
+
+
             return view('produk.index', ['produk' => $produkCustomer]);
         }
     }
@@ -78,6 +83,7 @@ class ProductController extends Controller
                     }
                 }
             }
+            
     
             $getFiles = $ImagesArray;
             return view('produk.show', compact('produk', 'getFiles', 'folderExtract'));
@@ -147,24 +153,40 @@ public function create()
 
 public function store(Request $request)
 {
-    
     $request->validate([
-        'nama' => 'required|string|max:255',
-        'deskripsi' => 'nullable|string',
-        'harga' => 'required|numeric|min:0',
-        'gambar' => 'nullable|string|max:255',
+        'nama' => 'required',
+        'deskripsi' => 'required',
+        'harga' => 'required|numeric',
+        'status' => 'required',
+        'gambar' => 'required|image|mimes:jpg,jpeg,png|max:2048',
     ]);
 
+    $originalName = pathinfo($request->file('gambar')->getClientOriginalName(), PATHINFO_FILENAME);
     
+    $safeName = Str::slug($originalName);
+    
+    $extension = $request->file('gambar')->getClientOriginalExtension();
+
+    $folderPath = public_path('assets/produk_images/' . $safeName);
+    $filePath = $folderPath . '/' . $safeName . '.' . $extension;
+
+    if (!File::exists($folderPath)) {
+        File::makeDirectory($folderPath, 0755, true);
+    }
+
+    $request->file('gambar')->move($folderPath, $safeName . '.' . $extension);
+
     ProdukModel::create([
         'nama' => $request->nama,
         'deskripsi' => $request->deskripsi,
         'harga' => $request->harga,
-        'gambar'=> $request->gambar,
+        'status' => $request->status,
+        'gambar' => $safeName, 
     ]);
 
-    return redirect('/produk')->with('success', 'Produk berhasil ditambahkan.');
+    return redirect()->route('menu_produk.index')->with('success', 'Produk berhasil ditambahkan.');
 }
+
 
 
 public function destroy($id)
@@ -190,20 +212,44 @@ public function update(Request $request, $id)
         'deskripsi' => 'required|string',
         'harga' => 'required|numeric',
         'status' => 'required|string',
-        'gambar' => 'nullable|string|max:255',
+        'gambar' => 'nullable|file|mimes:jpg,jpeg,png|max:2048',
     ]);
 
     $produk = ProdukModel::findOrFail($id);
-    $produk->update([
-        'nama' => $request->nama,
-        'deskripsi' => $request->deskripsi,
-        'harga' => $request->harga,
-        'status' => $request->status,
-        'gambar' => $request->gambar,
-    ]);
+
+    $produk->nama = $request->nama;
+    $produk->deskripsi = $request->deskripsi;
+    $produk->harga = $request->harga;
+    $produk->status = $request->status;
+
+    if ($request->hasFile('gambar')) {
+        $file = $request->file('gambar');
+        $filename = pathinfo($file->getClientOriginalName(), PATHINFO_FILENAME);
+        $extension = $file->getClientOriginalExtension();
+
+        $folderPath = public_path('assets/produk_images/' . $filename);
+
+        // Hapus folder lama jika berbeda
+        if ($produk->gambar !== $filename && file_exists(public_path('assets/produk_images/' . $produk->gambar))) {
+            \File::deleteDirectory(public_path('assets/produk_images/' . $produk->gambar));
+        }
+
+        // Buat folder baru
+        if (!file_exists($folderPath)) {
+            mkdir($folderPath, 0777, true);
+        }
+
+        $file->move($folderPath, $filename . '.' . $extension);
+
+        // Simpan nama tanpa ekstensi
+        $produk->gambar = $filename;
+    }
+
+    $produk->save();
 
     return redirect()->route('menu_produk.index')->with('success', 'Produk berhasil diperbarui');
 }
+
 
 
 
