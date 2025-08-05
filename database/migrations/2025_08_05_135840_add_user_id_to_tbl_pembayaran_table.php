@@ -11,11 +11,8 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('tbl_screenshots_produk', function (Blueprint $table) {
-            $table->id();
-            $table->string('folder');
-            $table->unsignedBigInteger('produk_id');
-            $table->foreign('produk_id')->references('id')->on('tbl_produk')->onDelete('cascade');
+        Schema::table('tbl_pembayaran', function (Blueprint $table) {
+            $table->unsignedBigInteger('user_id')->after('order_id');
         });
     }
 
@@ -24,6 +21,8 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('tbl_screenshots_produk');
+        Schema::table('tbl_pembayaran', function (Blueprint $table) {
+            $table->dropColumn('user_id');
+        });
     }
 };

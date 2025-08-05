@@ -57,6 +57,7 @@ try {
     PembayaranModel::create([
         'order_id'   => $orderId,
         'user_id'    => auth()->id(),
+        'produk_id'  => $produk->id, 
         'total'      => $totalHarga,
         'paid_at'    => now(),
         'metode'     => 'Xendit',

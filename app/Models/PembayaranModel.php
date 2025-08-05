@@ -13,7 +13,7 @@ class PembayaranModel extends Model
     protected $table = 'tbl_pembayaran';
 
 protected $fillable = [
-    'order_id', 'user_id', 'total', 'paid_at', 'metode'
+    'order_id', 'user_id', 'total', 'paid_at', 'metode','produk_id'
 ];
 
 public function beli_produk()

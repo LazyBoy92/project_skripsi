@@ -64,37 +64,29 @@ class ProductController extends Controller
         }
     }
 
-    public function show(string $id_produk)
-    {
-        $produk = ProdukModel::findOrFail($id_produk);
-        $produkScreenshots = ScreenshotsProdukModel::where('produk_id', $id_produk)->first();
-    
-        if ($produkScreenshots) {
-            $folderExtract = basename($produkScreenshots->folder);
-            $directory = public_path('assets/produk_images/' . $folderExtract);
-            $ImagesArray = [];
-            $file_display = ['jpg', 'jpeg', 'png'];
-    
-            if (is_dir($directory)) {
-                foreach (scandir($directory) as $file) {
-                    $file_type = strtolower(pathinfo($file, PATHINFO_EXTENSION));
-                    if (in_array($file_type, $file_display)) {
-                        $ImagesArray[] = $file;
-                    }
-                }
+   public function show(string $id_produk)
+{
+    $produk = ProdukModel::findOrFail($id_produk);
+
+    // Ambil nama folder langsung dari kolom gambar
+    $folderExtract = $produk->gambar;
+    $directory = public_path('assets/produk_images/' . $folderExtract);
+    $ImagesArray = [];
+    $file_display = ['jpg', 'jpeg', 'png'];
+
+    if (is_dir($directory)) {
+        foreach (scandir($directory) as $file) {
+            $file_type = strtolower(pathinfo($file, PATHINFO_EXTENSION));
+            if (in_array($file_type, $file_display)) {
+                $ImagesArray[] = $file;
             }
-            
-    
-            $getFiles = $ImagesArray;
-            return view('produk.show', compact('produk', 'getFiles', 'folderExtract'));
-        } else {
-            $msg = (Auth::user()->role_id == 1
-                ? 'Upload zip terlebih dahulu yang berisi file screenshots.'
-                : 'Admin belum melakukan upload screenshots.');
-            $this->setSessionFlash('error', $msg);
-            return redirect('/menu_produk');
         }
     }
+
+    $getFiles = $ImagesArray;
+    return view('produk.show', compact('produk', 'getFiles', 'folderExtract'));
+}
+
 
     public function search(Request $request)
 {
